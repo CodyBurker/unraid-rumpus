@@ -50,16 +50,16 @@ workflow publishes a fresh image), then use Unraid's *force update* /
 
 ## Publishing to the real Community Applications store
 
-To make Rumpus installable from Unraid's **Apps** tab for everyone:
+To make Rumpus installable from Unraid's **Apps** tab for everyone, submit
+this repo through the Community Apps portal:
 
-1. Repo and package must be public (see above).
-2. Review the template against the [CA template schema and policies]
-   (https://forums.unraid.net/topic/38619-docker-template-xml-schema/).
-3. Create a support thread on the Unraid forums and set its URL in
-   `<Support>`.
-4. Submit this repo to Community Applications per the CA moderators'
-   process (post in the Unraid forums; a moderator reviews and adds the
-   repo to the CA appfeed).
+1. Repo and package must be public (done), and the repo must contain a
+   `ca_profile.xml` and an OSI-approved LICENSE (both included here).
+2. Go to https://ca.unraid.net/submit, sign in, and point it at
+   `https://github.com/CodyBurker/unraid-rumpus`. A live scan validates the
+   template XML and `ca_profile.xml`, checks for duplicates, and previews
+   the listing before you submit.
+3. Fix anything the scan flags, submit, and wait for moderator review.
 
 Until it's accepted into CA, options A/B above give the same install
 experience on your own server.

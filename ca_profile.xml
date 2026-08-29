@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Maintainer>
+  <Icon>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/rumpus-icon.png</Icon>
+  <Profile>
+    Unraid templates maintained by Cody Burker. Currently packages Rumpus, a
+    self-hosted Jackbox-style party game platform (shared TV screen at /host,
+    phones as controllers at /play) built by rodwilco. Images are built from
+    pinned upstream commits via GitHub Actions and published to GHCR.
+  </Profile>
+</Maintainer>
