@@ -52,6 +52,10 @@ retried the next day against whatever upstream HEAD is then.
 Manual override: put a specific upstream commit SHA in `UPSTREAM_REF` and
 push to `main`, or run the *Publish Rumpus image* workflow by hand.
 
+Separately, the publish workflow also runs weekly (Mondays) so the image is
+rebuilt on a fresh `node:20-alpine` base — that's how base-image security
+updates reach the container even when the app itself hasn't changed.
+
 On the Unraid side, install the **CA Auto Update Applications** plugin and
 enable it for Rumpus to pull new images on its schedule automatically —
 otherwise use the container's normal *check for updates* / *apply update*.

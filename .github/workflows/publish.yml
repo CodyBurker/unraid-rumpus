@@ -1,13 +1,16 @@
 name: Publish Rumpus image
 
 # Builds the upstream rodwilco/rumpus source at the commit pinned in
-# UPSTREAM_REF and publishes it to GHCR. To update the app: put a new
-# upstream commit SHA in UPSTREAM_REF and push (or run this manually).
+# UPSTREAM_REF and publishes it to GHCR. Runs on push (UPSTREAM_REF bumps),
+# manually, and weekly — the weekly rebuild picks up base-image
+# (node:20-alpine) security updates even when the app itself is unchanged.
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
+  schedule:
+    - cron: '43 6 * * 1'
 
 permissions:
   contents: read
@@ -49,6 +52,7 @@ jobs:
         with:
           context: src
           platforms: linux/amd64
+          pull: true
           push: true
           tags: |
             ${{ env.IMAGE }}:latest
