@@ -1,0 +1,11 @@
+# Thin wrapper over the upstream lan-games image (built from the upstream
+# repo's own Dockerfile, passed in as BASE_IMAGE). Adds an entrypoint that
+# auto-generates and persists JWT_SECRET in the data volume when the
+# operator doesn't supply one — see langames-entrypoint.sh.
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+COPY --chmod=755 langames-entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["node", "src/index.js"]

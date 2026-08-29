@@ -3,7 +3,9 @@ name: Publish LAN Games image
 # Builds kbennett2000/lan-games at the commit pinned in UPSTREAM_REF_LANGAMES
 # using the upstream repo's own multi-stage Dockerfile (which runs the full
 # unit + integration test suites during the build, so every published image
-# is self-tested). Weekly cron rebuilds on a fresh base image.
+# is self-tested), then layers on an entrypoint that auto-generates and
+# persists JWT_SECRET when none is supplied (Dockerfile.langames-unraid).
+# Weekly cron rebuilds on a fresh base image.
 
 on:
   workflow_dispatch:
@@ -11,6 +13,8 @@ on:
     branches: [main]
     paths:
       - UPSTREAM_REF_LANGAMES
+      - Dockerfile.langames-unraid
+      - langames-entrypoint.sh
       - .github/workflows/publish-langames.yml
   schedule:
     - cron: '53 6 * * 1'
@@ -40,9 +44,6 @@ jobs:
           ref: ${{ steps.ref.outputs.sha }}
           path: src
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -50,13 +51,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      # No buildx container driver here: the wrapper build's FROM must see
+      # the base image in the local docker daemon, so both builds use the
+      # default docker driver (fine for single-platform).
+      - name: Build upstream image (runs upstream test suites)
         uses: docker/build-push-action@v6
         with:
           context: src
           platforms: linux/amd64
           pull: true
+          load: true
+          tags: langames-base:build
+
+      - name: Build wrapper and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.langames-unraid
+          platforms: linux/amd64
           push: true
+          build-args: |
+            BASE_IMAGE=langames-base:build
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ steps.ref.outputs.sha }}

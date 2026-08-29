@@ -8,7 +8,7 @@ Unraid Docker template (dockerMan / Community Applications format).
 |-----|----------|-------|-----------|-------|
 | **Rumpus** | [rodwilco/rumpus](https://github.com/rodwilco/rumpus) (AGPLv3) | `ghcr.io/codyburker/rumpus` | 8012 → 3000 | Jackbox-style: TV at `/host`, phones at `/play`. Stateless. |
 | **GameNight** | [abhijatchaturvedi/gamenight](https://github.com/abhijatchaturvedi/gamenight) | `ghcr.io/codyburker/gamenight` | 8013 → 4000 | Party games: Mongolpuri, UNO, Quiz, Tic Tac Toe, Scribble. Stateless; the Quiz game needs internet (opentdb.com). |
-| **LAN Games** | [kbennett2000/lan-games](https://github.com/kbennett2000/lan-games) (MIT) | `ghcr.io/codyburker/lan-games` | 8014 → 3000 | 8 turn-based board games. Has accounts (JWT + bcrypt) and SQLite persistence — mount `/app/server/data`, set `JWT_SECRET`. |
+| **LAN Games** | [kbennett2000/lan-games](https://github.com/kbennett2000/lan-games) (MIT) | `ghcr.io/codyburker/lan-games` | 8014 → 3000 | 8 turn-based board games. Has accounts (JWT + bcrypt) and SQLite persistence — mount `/app/server/data`. `JWT_SECRET` is auto-generated on first boot and persisted in the data volume (`langames-entrypoint.sh`); set the variable only to override. |
 
 Per app: a `publish-*.yml` workflow, a template XML, an icon PNG, and an
 `UPSTREAM_REF*` file pinning the upstream commit the image is built from.
