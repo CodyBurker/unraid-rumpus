@@ -43,10 +43,24 @@ After starting, open `http://<server-ip>:8012/host` on the TV and
 
 ## Updating the app
 
-Upstream has no releases/tags, so the image is pinned to a commit. To update:
-put the new upstream commit SHA in `UPSTREAM_REF`, push to `main` (the
-workflow publishes a fresh image), then use Unraid's *force update* /
-*check for updates* on the container.
+Updates are automatic: `.github/workflows/auto-update.yml` checks upstream
+daily, runs upstream's e2e test suite against any new commit, and — only if
+the tests pass — bumps `UPSTREAM_REF` and republishes the image. A commit
+that fails the tests is skipped (the workflow run shows the failure) and
+retried the next day against whatever upstream HEAD is then.
+
+Manual override: put a specific upstream commit SHA in `UPSTREAM_REF` and
+push to `main`, or run the *Publish Rumpus image* workflow by hand.
+
+On the Unraid side, install the **CA Auto Update Applications** plugin and
+enable it for Rumpus to pull new images on its schedule automatically —
+otherwise use the container's normal *check for updates* / *apply update*.
+Note: an update restarts the container, which clears any in-progress game
+rooms, so schedule auto-updates for a time you won't be mid-game.
+
+Heads-up: GitHub disables cron schedules in repos with no commit activity
+for ~60 days. If upstream goes quiet that long, GitHub emails you and the
+Actions tab shows a "re-enable" button for the schedule.
 
 ## Publishing to the real Community Applications store
 
