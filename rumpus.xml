@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Rumpus</Name>
+  <Repository>ghcr.io/codyburker/rumpus:latest</Repository>
+  <Registry>https://ghcr.io/codyburker/rumpus</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/CodyBurker/unraid-rumpus/issues</Support>
+  <Project>https://github.com/rodwilco/rumpus</Project>
+  <Overview>Self-hosted Jackbox-style party game platform: one shared TV screen and everyone else plays from their phone. Runs entirely on your LAN &#8212; no accounts, no cloud, no per-player app install.&#10;&#10;Open http://[server-ip]:[port]/host on the TV to get a room code, then everyone joins from their phones at http://[server-ip]:[port]/play.&#10;&#10;Ships four games: Quiplash, Trivia Blast, Cards Against Humanity (sample deck; bring your own full deck via the optional path mapping), and Fibbage.&#10;&#10;Rooms are in-memory and ephemeral &#8212; no persistent data, so no appdata volume is required. Do not expose this container off your LAN; it has no authentication by design.</Overview>
+  <Category>GameServers:</Category>
+  <WebUI>http://[IP]:[PORT:8012]/host</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/rumpus.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/rumpus-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="3000" Default="8012" Mode="tcp" Description="Host port for the Rumpus web UI. TV opens /host, phones open /play." Type="Port" Display="always" Required="true" Mask="false">8012</Config>
+  <Config Name="TZ" Target="TZ" Default="America/Indiana/Indianapolis" Mode="" Description="Container timezone." Type="Variable" Display="advanced" Required="false" Mask="false">America/Indiana/Indianapolis</Config>
+  <Config Name="Custom CAH deck (optional)" Target="/app/games/data/cah-cards.js" Default="" Mode="ro" Description="Optional: host path to a cah-cards.js file exporting { WHITE: [...], BLACK: [...] } to replace the built-in sample Cards Against Humanity deck (e.g. /mnt/user/appdata/rumpus/cah-cards.js). Leave EMPTY to use the built-in sample deck &#8212; if you set a path, the file must already exist on the host or Docker will create an empty directory there and break the game." Type="Path" Display="advanced" Required="false" Mask="false"/>
+</Container>
