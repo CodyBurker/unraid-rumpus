@@ -74,3 +74,11 @@ experience on your own server.
   exporting `{ WHITE: [...], BLACK: [...] }`) over
   `/app/games/data/cah-cards.js` (the template has an advanced path config
   for this). The real CAH text is CC BY-NC-SA and is not distributed here.
+
+## Licensing
+
+The contents of this repository (Unraid templates, CI workflow, metadata,
+and documentation) are MIT-licensed — see `LICENSE`. The Rumpus application
+itself is a separate work by its upstream author (rodwilco), licensed
+AGPL-3.0-only; the published container image contains that AGPL-licensed
+code and its source is available at https://github.com/rodwilco/rumpus.
