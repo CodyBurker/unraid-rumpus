@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>LAN-Games</Name>
+  <Repository>ghcr.io/codyburker/lan-games:latest</Repository>
+  <Registry>https://ghcr.io/codyburker/lan-games</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/CodyBurker/unraid-rumpus/issues</Support>
+  <Project>https://github.com/kbennett2000/lan-games</Project>
+  <Overview>Self-hosted LAN board game platform: eight turn-based classics &#8212; Monopoly, Risk, Battleship, Yahtzee, Life, Checkers, Connect Four, and Tic-Tac-Toe &#8212; playable in any browser on your network. Real-time multiplayer via Socket.IO, with lobbies, hidden-information support (Battleship/Risk), and spectator mode.&#10;&#10;Unlike most party game servers it has real user accounts: JWT-based auth with bcrypt-hashed passwords, and game state persists in a SQLite database (mount the data path so it survives updates). Designed for trusted local networks &#8212; don't expose it to the internet.&#10;&#10;JWT Secret is REQUIRED: the server refuses to start without one. Generate with:  openssl rand -hex 48</Overview>
+  <Category>GameServers:</Category>
+  <WebUI>http://[IP]:[PORT:8014]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/lan-games.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/lan-games-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="3000" Default="8014" Mode="tcp" Description="Host port for the LAN Games web UI." Type="Port" Display="always" Required="true" Mask="false">8014</Config>
+  <Config Name="Game Data" Target="/app/server/data" Default="/mnt/user/appdata/lan-games" Mode="rw" Description="SQLite database directory &#8212; user accounts and game state live here. The container runs as a non-root user; if startup logs show a permission error on this path, run: chmod 777 /mnt/user/appdata/lan-games" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/lan-games</Config>
+  <Config Name="JWT Secret" Target="JWT_SECRET" Default="" Mode="" Description="REQUIRED &#8212; secret used to sign login tokens. Generate one with:  openssl rand -hex 48  (run in the Unraid terminal and paste the output here). The server refuses to start if this is empty." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="TZ" Target="TZ" Default="America/Indiana/Indianapolis" Mode="" Description="Container timezone." Type="Variable" Display="advanced" Required="false" Mask="false">America/Indiana/Indianapolis</Config>
+</Container>

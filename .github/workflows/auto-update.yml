@@ -1,8 +1,9 @@
 name: Auto-update from upstream
 
-# Daily check of rodwilco/rumpus. If upstream has new commits, run its e2e
-# test suite at the new commit; only if tests pass, bump UPSTREAM_REF and
-# trigger the publish workflow to build and push a fresh image.
+# Daily check of each packaged app's upstream repo. If upstream has new
+# commits, run that app's test suite at the new commit; only if tests pass,
+# bump its ref file and dispatch its publish workflow. Jobs run serially
+# (max-parallel: 1) so concurrent bump commits can't conflict.
 
 on:
   schedule:
@@ -16,6 +17,26 @@ permissions:
 jobs:
   check-test-bump:
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        include:
+          - app: rumpus
+            upstream: rodwilco/rumpus
+            ref_file: UPSTREAM_REF
+            publish_workflow: publish.yml
+            test_cmd: npm install && npm run test:e2e
+          - app: gamenight
+            upstream: abhijatchaturvedi/gamenight
+            ref_file: UPSTREAM_REF_GAMENIGHT
+            publish_workflow: publish-gamenight.yml
+            test_cmd: npm install && node test-tournament.js
+          - app: lan-games
+            upstream: kbennett2000/lan-games
+            ref_file: UPSTREAM_REF_LANGAMES
+            publish_workflow: publish-langames.yml
+            test_cmd: cd server && npm ci && npm test && npm run test:integration
     steps:
       - name: Checkout packaging repo
         uses: actions/checkout@v4
@@ -23,22 +44,22 @@ jobs:
       - name: Compare upstream HEAD with pinned ref
         id: check
         run: |
-          upstream=$(git ls-remote https://github.com/rodwilco/rumpus.git HEAD | cut -f1)
-          current=$(tr -d ' \n' < UPSTREAM_REF)
+          upstream=$(git ls-remote https://github.com/${{ matrix.upstream }}.git HEAD | cut -f1)
+          current=$(tr -d ' \n' < ${{ matrix.ref_file }})
           echo "upstream=$upstream" >> "$GITHUB_OUTPUT"
           if [ "$upstream" = "$current" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Already up to date at $current."
+            echo "${{ matrix.app }}: already up to date at $current."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "Upstream moved: $current -> $upstream"
+            echo "${{ matrix.app }}: upstream moved $current -> $upstream"
           fi
 
       - name: Checkout upstream at new commit
         if: steps.check.outputs.changed == 'true'
         uses: actions/checkout@v4
         with:
-          repository: rodwilco/rumpus
+          repository: ${{ matrix.upstream }}
           ref: ${{ steps.check.outputs.upstream }}
           path: src
 
@@ -48,20 +69,19 @@ jobs:
         with:
           node-version: 20
 
-      - name: Run upstream e2e tests (gate)
+      - name: Run upstream tests (gate)
         if: steps.check.outputs.changed == 'true'
         working-directory: src
-        run: |
-          npm install
-          npm run test:e2e
+        run: ${{ matrix.test_cmd }}
 
-      - name: Bump UPSTREAM_REF and push
+      - name: Bump ref file and push
         if: steps.check.outputs.changed == 'true'
         run: |
-          echo "${{ steps.check.outputs.upstream }}" > UPSTREAM_REF
+          echo "${{ steps.check.outputs.upstream }}" > ${{ matrix.ref_file }}
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Bump upstream to ${{ steps.check.outputs.upstream }} (e2e tests passed)"
+          git commit -am "Bump ${{ matrix.app }} upstream to ${{ steps.check.outputs.upstream }} (tests passed)"
+          git pull --rebase origin main
           git push
 
       # Pushes made with GITHUB_TOKEN do not fire on:push workflows, so
@@ -70,4 +90,4 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run publish.yml --ref main
+        run: gh workflow run ${{ matrix.publish_workflow }} --ref main

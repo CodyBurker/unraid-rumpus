@@ -1,25 +1,30 @@
 # unraid-rumpus
 
-Unraid packaging for [Rumpus](https://github.com/rodwilco/rumpus) — a
-self-hosted Jackbox-style party game platform (one shared TV screen at
-`/host`, phones as controllers at `/play`). Upstream is AGPLv3.
+Unraid packaging for a family of self-hosted LAN game platforms. Each app
+gets a GHCR image built from a pinned, test-gated upstream commit, plus an
+Unraid Docker template (dockerMan / Community Applications format).
 
-This repo contains:
+| App | Upstream | Image | Host port | Notes |
+|-----|----------|-------|-----------|-------|
+| **Rumpus** | [rodwilco/rumpus](https://github.com/rodwilco/rumpus) (AGPLv3) | `ghcr.io/codyburker/rumpus` | 8012 → 3000 | Jackbox-style: TV at `/host`, phones at `/play`. Stateless. |
+| **GameNight** | [abhijatchaturvedi/gamenight](https://github.com/abhijatchaturvedi/gamenight) | `ghcr.io/codyburker/gamenight` | 8013 → 4000 | Party games: Mongolpuri, UNO, Quiz, Tic Tac Toe, Scribble. Stateless; the Quiz game needs internet (opentdb.com). |
+| **LAN Games** | [kbennett2000/lan-games](https://github.com/kbennett2000/lan-games) (MIT) | `ghcr.io/codyburker/lan-games` | 8014 → 3000 | 8 turn-based board games. Has accounts (JWT + bcrypt) and SQLite persistence — mount `/app/server/data`, set `JWT_SECRET`. |
 
-- **`.github/workflows/publish.yml`** — builds the upstream source at the
-  commit pinned in `UPSTREAM_REF` and publishes `ghcr.io/codyburker/rumpus`
-  (`:latest` plus the commit SHA as a tag).
-- **`rumpus.xml`** — Unraid Docker template (dockerMan / Community
-  Applications format).
-- **`rumpus-icon.png`** — app icon referenced by the template.
-- **`UPSTREAM_REF`** — the upstream commit the image is built from.
+Per app: a `publish-*.yml` workflow, a template XML, an icon PNG, and an
+`UPSTREAM_REF*` file pinning the upstream commit the image is built from.
+GameNight ships no Dockerfile upstream, so `Dockerfile.gamenight` here
+supplies one; the others build with their upstream Dockerfile (LAN Games'
+multi-stage build runs its full 600+ test suite during every image build).
 
 ## One-time setup
 
-1. **Make the GHCR package public** (after the first successful workflow run):
-   https://github.com/users/CodyBurker/packages/container/rumpus/settings →
-   Danger Zone → Change visibility → Public. Unraid pulls anonymously, so a
-   private package will fail to pull.
+1. **Make each GHCR package public** (after its first successful workflow
+   run) — Unraid pulls anonymously, so a private package will fail to pull:
+   - https://github.com/users/CodyBurker/packages/container/rumpus/settings
+   - https://github.com/users/CodyBurker/packages/container/gamenight/settings
+   - https://github.com/users/CodyBurker/packages/container/lan-games/settings
+
+   Danger Zone → Change visibility → Public.
 2. **Make this repo public** so the template and icon raw URLs resolve for
    Unraid (and as a prerequisite for a Community Applications submission):
    repo Settings → General → Danger Zone → Change visibility.
@@ -43,18 +48,21 @@ After starting, open `http://<server-ip>:8012/host` on the TV and
 
 ## Updating the app
 
-Updates are automatic: `.github/workflows/auto-update.yml` checks upstream
-daily, runs upstream's e2e test suite against any new commit, and — only if
-the tests pass — bumps `UPSTREAM_REF` and republishes the image. A commit
-that fails the tests is skipped (the workflow run shows the failure) and
-retried the next day against whatever upstream HEAD is then.
+Updates are automatic for all apps: `.github/workflows/auto-update.yml`
+checks each upstream daily, runs that app's test suite against any new
+commit (Rumpus: e2e suite; GameNight: tournament logic test; LAN Games:
+jest unit + integration suites), and — only if tests pass — bumps the app's
+`UPSTREAM_REF*` file and republishes its image. A commit that fails the
+tests is skipped (the workflow run shows the failure) and retried the next
+day against whatever upstream HEAD is then.
 
-Manual override: put a specific upstream commit SHA in `UPSTREAM_REF` and
-push to `main`, or run the *Publish Rumpus image* workflow by hand.
+Manual override: put a specific upstream commit SHA in the app's
+`UPSTREAM_REF*` file and push to `main`, or run its publish workflow by
+hand.
 
-Separately, the publish workflow also runs weekly (Mondays) so the image is
-rebuilt on a fresh `node:20-alpine` base — that's how base-image security
-updates reach the container even when the app itself hasn't changed.
+Separately, each publish workflow also runs weekly (Mondays) so images are
+rebuilt on a fresh base — that's how base-image security updates reach the
+containers even when the apps themselves haven't changed.
 
 On the Unraid side, install the **CA Auto Update Applications** plugin and
 enable it for Rumpus to pull new images on its schedule automatically —
@@ -95,8 +103,13 @@ experience on your own server.
 
 ## Licensing
 
-The contents of this repository (Unraid templates, CI workflow, metadata,
-and documentation) are MIT-licensed — see `LICENSE`. The Rumpus application
-itself is a separate work by its upstream author (rodwilco), licensed
-AGPL-3.0-only; the published container image contains that AGPL-licensed
-code and its source is available at https://github.com/rodwilco/rumpus.
+The contents of this repository (Unraid templates, CI workflows, metadata,
+and documentation) are MIT-licensed — see `LICENSE`. The packaged
+applications are separate works by their upstream authors; each published
+container image contains that app's code under its own license:
+
+- **Rumpus** — AGPL-3.0-only (source: https://github.com/rodwilco/rumpus)
+- **GameNight** — the README displays an MIT badge but the repo currently
+  ships no LICENSE file; an issue should be raised upstream asking for one
+  to be committed.
+- **LAN Games** — MIT (source: https://github.com/kbennett2000/lan-games)

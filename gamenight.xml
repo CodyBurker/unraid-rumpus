@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>GameNight</Name>
+  <Repository>ghcr.io/codyburker/gamenight:latest</Repository>
+  <Registry>https://ghcr.io/codyburker/gamenight</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/CodyBurker/unraid-rumpus/issues</Support>
+  <Project>https://github.com/abhijatchaturvedi/gamenight</Project>
+  <Overview>Self-hosted multiplayer party games for your living room: any phone, tablet, or laptop on your LAN becomes a controller. Create a room, share the 6-letter code or invite link, and play.&#10;&#10;Ships five games: Mongolpuri (social deduction, 4-15 players), UNO, Quiz (15-question trivia), Tic Tac Toe (with tournament brackets), and Scribble (draw &amp; guess).&#10;&#10;Features reconnect support, spectator mode, 100 avatars, and per-game host settings. No accounts, no persistent data. Note: the Quiz game fetches its questions from opentdb.com, so that one game needs internet access; everything else is fully local. No authentication by design &#8212; keep it LAN-only.</Overview>
+  <Category>GameServers:</Category>
+  <WebUI>http://[IP]:[PORT:8013]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/gamenight.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/gamenight-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="4000" Default="8013" Mode="tcp" Description="Host port for the GameNight web UI. Everyone on the LAN opens this to create or join rooms." Type="Port" Display="always" Required="true" Mask="false">8013</Config>
+  <Config Name="TZ" Target="TZ" Default="America/Indiana/Indianapolis" Mode="" Description="Container timezone." Type="Variable" Display="advanced" Required="false" Mask="false">America/Indiana/Indianapolis</Config>
+</Container>

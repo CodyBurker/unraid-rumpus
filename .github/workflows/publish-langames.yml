@@ -1,26 +1,26 @@
-name: Publish Rumpus image
+name: Publish LAN Games image
 
-# Builds the upstream rodwilco/rumpus source at the commit pinned in
-# UPSTREAM_REF and publishes it to GHCR. Runs on push (UPSTREAM_REF bumps),
-# manually, and weekly — the weekly rebuild picks up base-image
-# (node:20-alpine) security updates even when the app itself is unchanged.
+# Builds kbennett2000/lan-games at the commit pinned in UPSTREAM_REF_LANGAMES
+# using the upstream repo's own multi-stage Dockerfile (which runs the full
+# unit + integration test suites during the build, so every published image
+# is self-tested). Weekly cron rebuilds on a fresh base image.
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - UPSTREAM_REF
-      - .github/workflows/publish.yml
+      - UPSTREAM_REF_LANGAMES
+      - .github/workflows/publish-langames.yml
   schedule:
-    - cron: '43 6 * * 1'
+    - cron: '53 6 * * 1'
 
 permissions:
   contents: read
   packages: write
 
 env:
-  IMAGE: ghcr.io/codyburker/rumpus
+  IMAGE: ghcr.io/codyburker/lan-games
 
 jobs:
   build-and-push:
@@ -31,12 +31,12 @@ jobs:
 
       - name: Read pinned upstream ref
         id: ref
-        run: echo "sha=$(tr -d ' \n' < UPSTREAM_REF)" >> "$GITHUB_OUTPUT"
+        run: echo "sha=$(tr -d ' \n' < UPSTREAM_REF_LANGAMES)" >> "$GITHUB_OUTPUT"
 
       - name: Checkout upstream source
         uses: actions/checkout@v4
         with:
-          repository: rodwilco/rumpus
+          repository: kbennett2000/lan-games
           ref: ${{ steps.ref.outputs.sha }}
           path: src
 
@@ -62,7 +62,7 @@ jobs:
             ${{ env.IMAGE }}:${{ steps.ref.outputs.sha }}
           labels: |
             org.opencontainers.image.source=https://github.com/CodyBurker/unraid-rumpus
-            org.opencontainers.image.title=Rumpus
-            org.opencontainers.image.description=Self-hosted Jackbox-style party game platform (TV at /host, phones at /play)
-            org.opencontainers.image.licenses=AGPL-3.0-only
+            org.opencontainers.image.title=LAN Games
+            org.opencontainers.image.description=Self-hosted LAN board game platform (Monopoly, Risk, Battleship, Yahtzee, Life, Checkers, Connect Four, Tic-Tac-Toe)
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.revision=${{ steps.ref.outputs.sha }}

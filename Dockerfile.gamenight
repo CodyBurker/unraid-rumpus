@@ -1,0 +1,17 @@
+# Dockerfile for abhijatchaturvedi/gamenight, which ships no Dockerfile of
+# its own. The publish workflow copies this into the upstream checkout as
+# Dockerfile before building. Mirrors the app's README: Node 18+, npm
+# install, node server.js, port 4000.
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install --omit=dev
+
+COPY server.js ./
+COPY public ./public
+
+EXPOSE 4000
+
+CMD ["node", "server.js"]

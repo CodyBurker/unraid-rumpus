@@ -2,9 +2,11 @@
 <Maintainer>
   <Icon>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/rumpus-icon.png</Icon>
   <Profile>
-    Unraid templates maintained by Cody Burker. Currently packages Rumpus, a
-    self-hosted Jackbox-style party game platform (shared TV screen at /host,
-    phones as controllers at /play) built by rodwilco. Images are built from
-    pinned upstream commits via GitHub Actions and published to GHCR.
+    Unraid templates maintained by Cody Burker: self-hosted LAN party and
+    board game platforms. Currently packages Rumpus (Jackbox-style: shared TV
+    screen + phones as controllers), GameNight (party games: social deduction,
+    UNO, trivia, drawing), and LAN Games (turn-based board game classics with
+    accounts and persistence). Images are built from pinned, test-gated
+    upstream commits via GitHub Actions and published to GHCR.
   </Profile>
 </Maintainer>
