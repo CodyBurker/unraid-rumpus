@@ -1,11 +1,16 @@
 # Thin wrapper over the upstream lan-games image (built from the upstream
 # repo's own Dockerfile, passed in as BASE_IMAGE). Adds an entrypoint that
-# auto-generates and persists JWT_SECRET in the data volume when the
-# operator doesn't supply one — see langames-entrypoint.sh.
+# fixes data-volume ownership (Unraid creates appdata dirs as root), then
+# auto-generates and persists JWT_SECRET when the operator doesn't supply
+# one, then drops privileges to PUID:PGID — see langames-entrypoint.sh.
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 COPY --chmod=755 langames-entrypoint.sh /entrypoint.sh
+
+# The entrypoint starts as root to chown the volume and immediately drops
+# to PUID:PGID (default 99:100) via setpriv before exec'ing the app.
+USER root
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", "src/index.js"]

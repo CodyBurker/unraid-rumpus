@@ -63,7 +63,36 @@ jobs:
           load: true
           tags: langames-base:build
 
-      - name: Build wrapper and push
+      - name: Build wrapper
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.langames-unraid
+          platforms: linux/amd64
+          load: true
+          build-args: |
+            BASE_IMAGE=langames-base:build
+          tags: langames-wrapped:test
+
+      # Reproduces the Unraid failure mode: a root-owned appdata volume.
+      # Verifies the entrypoint fixes ownership, generates and persists the
+      # JWT secret, drops privileges, and the server actually serves HTTP.
+      - name: Smoke test wrapper (root-owned volume, no JWT_SECRET)
+        run: |
+          set -eux
+          sudo mkdir -p /tmp/lg-data && sudo chown root:root /tmp/lg-data
+          docker run -d --name lg-test -v /tmp/lg-data:/app/server/data -p 3999:3000 langames-wrapped:test
+          for i in $(seq 1 15); do
+            curl -fsS http://localhost:3999/ > /dev/null && break
+            sleep 2
+          done
+          curl -fsS http://localhost:3999/ > /dev/null
+          docker logs lg-test
+          sudo test -f /tmp/lg-data/.jwt_secret
+          docker exec lg-test sh -c 'ps -o user= -p 1 || stat -c %u /proc/1' || true
+          docker rm -f lg-test
+
+      - name: Push wrapper
         uses: docker/build-push-action@v6
         with:
           context: .

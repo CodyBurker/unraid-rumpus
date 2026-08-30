@@ -20,7 +20,9 @@
   <DonateLink/>
   <Requires/>
   <Config Name="WebUI Port" Target="3000" Default="8014" Mode="tcp" Description="Host port for the LAN Games web UI." Type="Port" Display="always" Required="true" Mask="false">8014</Config>
-  <Config Name="Game Data" Target="/app/server/data" Default="/mnt/user/appdata/lan-games" Mode="rw" Description="SQLite database directory &#8212; user accounts and game state live here. The container runs as a non-root user; if startup logs show a permission error on this path, run: chmod 777 /mnt/user/appdata/lan-games" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/lan-games</Config>
+  <Config Name="Game Data" Target="/app/server/data" Default="/mnt/user/appdata/lan-games" Mode="rw" Description="SQLite database directory &#8212; user accounts and game state live here. Ownership is fixed automatically on startup (set to PUID:PGID), then the app runs unprivileged." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/lan-games</Config>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User ID the app runs as after startup (Unraid default: 99 = nobody). Data files are owned by this user." Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group ID the app runs as after startup (Unraid default: 100 = users)." Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
   <Config Name="JWT Secret (optional)" Target="JWT_SECRET" Default="" Mode="" Description="Secret used to sign login tokens. Leave EMPTY for turnkey setup: the container generates one on first boot and persists it in the Game Data directory (.jwt_secret), so logins survive restarts and updates. Set a value only to override with your own secret." Type="Variable" Display="advanced" Required="false" Mask="true"/>
   <Config Name="TZ" Target="TZ" Default="America/Indiana/Indianapolis" Mode="" Description="Container timezone." Type="Variable" Display="advanced" Required="false" Mask="false">America/Indiana/Indianapolis</Config>
 </Container>
