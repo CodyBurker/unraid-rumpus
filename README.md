@@ -8,6 +8,7 @@ Unraid Docker template (dockerMan / Community Applications format).
 |-----|----------|-------|-----------|-------|
 | **Rumpus** | [rodwilco/rumpus](https://github.com/rodwilco/rumpus) (AGPLv3) | `ghcr.io/codyburker/rumpus` | 8012 → 3000 | Jackbox-style: TV at `/host`, phones at `/play`. Stateless. |
 | **GameNight** | [abhijatchaturvedi/gamenight](https://github.com/abhijatchaturvedi/gamenight) | `ghcr.io/codyburker/gamenight` | 8013 → 4000 | Party games: Mongolpuri, UNO, Quiz, Tic Tac Toe, Scribble. Stateless; the Quiz game needs internet (opentdb.com). |
+| **Clonenames** | [cazier/clonenames](https://github.com/cazier/clonenames) (GPL-3.0) | `ghcr.io/codyburker/clonenames` | 8015 → 12345 | Codenames-style word guessing. Stateless, fully offline. Note: the app binds 12345 despite the upstream Dockerfile's `EXPOSE 5000`. |
 | **LAN Games** | [kbennett2000/lan-games](https://github.com/kbennett2000/lan-games) (MIT) | `ghcr.io/codyburker/lan-games` | 8014 → 3000 | 8 turn-based board games. Has accounts (JWT + bcrypt) and SQLite persistence — mount `/app/server/data`. The entrypoint (`langames-entrypoint.sh`) fixes data-volume ownership (Unraid creates appdata dirs as root), auto-generates and persists `JWT_SECRET` when unset, then drops privileges to `PUID:PGID` (default 99:100). The publish workflow smoke-tests all of this against a root-owned volume before pushing. |
 
 Per app: a `publish-*.yml` workflow, a template XML, an icon PNG, and an
@@ -113,3 +114,8 @@ container image contains that app's code under its own license:
   ships no LICENSE file; an issue should be raised upstream asking for one
   to be committed.
 - **LAN Games** — MIT (source: https://github.com/kbennett2000/lan-games)
+- **Clonenames** — GPL-3.0 (source: https://github.com/cazier/clonenames)
+
+(A Codenames implementation with more stars, jbowens/codenames, was
+evaluated and skipped: it has no license file at all, so its images can't
+be redistributed.)

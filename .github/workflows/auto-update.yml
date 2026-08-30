@@ -37,6 +37,18 @@ jobs:
             ref_file: UPSTREAM_REF_LANGAMES
             publish_workflow: publish-langames.yml
             test_cmd: cd server && npm ci && npm test && npm run test:integration
+          # Upstream has no test suite, so the gate is booting the real
+          # container and probing HTTP (app binds 12345, not the EXPOSEd 5000).
+          - app: clonenames
+            upstream: cazier/clonenames
+            ref_file: UPSTREAM_REF_CLONENAMES
+            publish_workflow: publish-clonenames.yml
+            test_cmd: >-
+              docker build -t cn-gate . &&
+              docker run -d --name cn-gate -p 12345:12345 cn-gate &&
+              sleep 10 &&
+              curl -fsS http://localhost:12345/ > /dev/null &&
+              docker rm -f cn-gate
     steps:
       - name: Checkout packaging repo
         uses: actions/checkout@v4

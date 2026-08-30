@@ -1,0 +1,89 @@
+name: Publish Clonenames image
+
+# Builds cazier/clonenames at the commit pinned in UPSTREAM_REF_CLONENAMES
+# using the upstream Dockerfile, smoke tests it (upstream has no test
+# suite, so booting the real container and probing HTTP is the gate),
+# then publishes to GHCR. Weekly cron rebuilds on a fresh base image.
+#
+# Note: the upstream Dockerfile says EXPOSE 5000 but the app binds
+# 0.0.0.0:12345 — the template and smoke test use 12345.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - UPSTREAM_REF_CLONENAMES
+      - .github/workflows/publish-clonenames.yml
+  schedule:
+    - cron: '53 6 * * 1'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/codyburker/clonenames
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packaging repo
+        uses: actions/checkout@v4
+
+      - name: Read pinned upstream ref
+        id: ref
+        run: echo "sha=$(tr -d ' \n' < UPSTREAM_REF_CLONENAMES)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout upstream source
+        uses: actions/checkout@v4
+        with:
+          repository: cazier/clonenames
+          ref: ${{ steps.ref.outputs.sha }}
+          path: src
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: src
+          platforms: linux/amd64
+          pull: true
+          load: true
+          tags: clonenames:test
+
+      - name: Smoke test (HTTP + socket.io on 12345)
+        run: |
+          set -eux
+          docker run -d --name cn-test -p 12345:12345 clonenames:test
+          for i in $(seq 1 15); do
+            curl -fsS http://localhost:12345/ > /dev/null && break
+            sleep 2
+          done
+          curl -fsS http://localhost:12345/ > /dev/null
+          curl -fsS "http://localhost:12345/socket.io/?EIO=4&transport=polling" | grep -q sid
+          docker logs cn-test
+          docker rm -f cn-test
+
+      - name: Push
+        uses: docker/build-push-action@v6
+        with:
+          context: src
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ steps.ref.outputs.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/CodyBurker/unraid-rumpus
+            org.opencontainers.image.title=Clonenames
+            org.opencontainers.image.description=Self-hosted Codenames-style word guessing game (Flask + Socket.IO)
+            org.opencontainers.image.licenses=GPL-3.0-only
+            org.opencontainers.image.revision=${{ steps.ref.outputs.sha }}

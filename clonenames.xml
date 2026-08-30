@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Clonenames</Name>
+  <Repository>ghcr.io/codyburker/clonenames:latest</Repository>
+  <Registry>https://ghcr.io/codyburker/clonenames</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/CodyBurker/unraid-rumpus/issues</Support>
+  <Project>https://github.com/cazier/clonenames</Project>
+  <Overview>Self-hosted Codenames-style word guessing game: two teams, a grid of secret words, and spymasters giving one-word clues. Create a room, share the 5-letter code, and everyone plays from their own browser on your LAN &#8212; spymaster view and guesser view are synced live via Socket.IO.&#10;&#10;Includes multiple word lists. Rooms are in-memory and ephemeral &#8212; no persistent data, no accounts, no volumes needed. All assets are served locally, so it works with zero internet. No authentication by design &#8212; keep it LAN-only.</Overview>
+  <Category>GameServers:</Category>
+  <WebUI>http://[IP]:[PORT:8015]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/clonenames.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/clonenames-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="12345" Default="8015" Mode="tcp" Description="Host port for the Clonenames web UI. (The app listens on container port 12345.)" Type="Port" Display="always" Required="true" Mask="false">8015</Config>
+</Container>
