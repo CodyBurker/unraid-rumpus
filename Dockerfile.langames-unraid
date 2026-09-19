@@ -6,6 +6,15 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
+# Refresh Debian security updates. The upstream base (node:20-slim) lags the
+# bookworm archive, so a plain rebuild keeps shipping stale packages — e.g.
+# libgnutls30 3.7.9-2+deb12u6, which Trivy flags as CVE-2026-33845 and
+# CVE-2026-42010 (both fixed in 3.7.9-2+deb12u7). This runs as root before the
+# entrypoint drops privileges, and the weekly rebuild keeps it current.
+RUN apt-get update \
+ && apt-get -y upgrade \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY --chmod=755 langames-entrypoint.sh /entrypoint.sh
 
 # The entrypoint starts as root to chown the volume and immediately drops
